@@ -1,0 +1,57 @@
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - microservices-network
+
+  postgres:
+    image: postgres:15
+    container_name: postgreSQL_v2
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/pg_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - microservices-network
+
+  # envoy:
+  #   image: envoyproxy/envoy:v1.29-latest
+  #   ports:
+  #     - "8080:8080"     # incoming traffic
+  #   volumes:
+  #     - ./envoy.yaml:/etc/envoy/envoy.yaml
+  #   depends_on:
+  #     - user-service
+  #     - ticket-service
+  #   networks:
+  #     - microservices-network
+
+  # user-service:
+  #   build:
+  #     context: ./user-service
+  #   # volumes:
+  #   #   - ./users-service:/app
+  #   ports:
+  #     - "5080:5080"   # REST
+  #     - "5168:5168"   # gRPC
+  #   env_file: ./user-service/.env
+  #   environment:
+  #     - DOTNET_ENVIRONMENT=Development
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #   networks:
+  #     - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge

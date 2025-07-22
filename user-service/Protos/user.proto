@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "UserGrpc";
+
+package user;
+
+service UserService {
+  rpc GetProfileById(UserRequest) returns (UserProfileDto);
+}
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message UserProfileDto {
+  string Id = 1;
+  string Email = 2;
+}

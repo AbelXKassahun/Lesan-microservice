@@ -1,0 +1,2 @@
+- [ ] Test UpdateProfileImage from ProfileController
+- [ ] Implement rabbitMQ producer

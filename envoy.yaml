@@ -1,0 +1,94 @@
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8080
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_services
+                      domains: ["*"]
+                      routes:
+                        # User            
+                        # Rewrites /api/user to /api/v2/user
+                        - match:
+                            prefix: "/api/user"
+                          route:
+                            cluster: user-service
+                            prefix_rewrite: "/api/v2/user"
+
+                        # Leaves /api/v1/user unchanged
+                        - match:
+                            prefix: "/api/v1/user"
+                          route:
+                            cluster: user-service
+
+                        # Leaves /api/v2/user unchanged
+                        - match:
+                            prefix: "/api/v2/user"
+                          route:
+                            cluster: user-service
+
+                        # Ticket
+                        # Rewrites /api/ticket to /api/v2/ticket
+                        - match:
+                            prefix: "/api/ticket"
+                          route:
+                            cluster: ticket-service
+                            prefix_rewrite: "/api/v2/ticket"
+
+                        # Leaves /api/v1/ticket unchanged
+                        - match:
+                            prefix: "/api/v1/ticket"
+                          route:
+                            cluster: ticket-service
+
+                        # Leaves /api/v2/ticket unchanged
+                        - match:
+                            prefix: "/api/v2/ticket"
+                          route:
+                            cluster: ticket-service
+
+                http_filters:
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+  clusters:
+    - name: user-service
+      connect_timeout: 0.25s
+      type: logical_dns
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: user-service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: user-service
+                      # port_value: 5168
+                      port_value: 5080
+
+    - name: ticket-service
+      connect_timeout: 0.25s
+      type: logical_dns
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: ticket-service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: ticket-service
+                      # port_value: 5144
+                      port_value: 5090

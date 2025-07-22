@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "TicketGrpc";
+
+package ticket;
+
+service TicketCleanupService {
+    rpc CleanupUserTickets (CleanupRequest) returns (CleanupResponse);
+}
+
+message CleanupRequest {
+    string user_id = 1;
+}
+
+message CleanupResponse {
+  string message = 1; // e.g. "Deleted 4 tickets"
+}

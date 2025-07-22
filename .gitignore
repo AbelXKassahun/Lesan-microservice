@@ -1,0 +1,9 @@
+**/obj/
+**/bin/
+**/.env
+data
+.github
+.vscode
+uploads
+
+# envoy.yaml
