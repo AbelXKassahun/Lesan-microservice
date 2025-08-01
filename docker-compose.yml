@@ -18,8 +18,19 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - ./init:/docker-entrypoint-initdb.d
       - ./data/pg_data:/var/lib/postgresql/data
-      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - microservices-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Admin UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - microservices-network
 
@@ -35,22 +46,36 @@ services:
   #   networks:
   #     - microservices-network
 
-  # user-service:
-  #   build:
-  #     context: ./user-service
-  #   # volumes:
-  #   #   - ./users-service:/app
-  #   ports:
-  #     - "5080:5080"   # REST
-  #     - "5168:5168"   # gRPC
-  #   env_file: ./user-service/.env
-  #   environment:
-  #     - DOTNET_ENVIRONMENT=Development
-  #   depends_on:
-  #     - redis
-  #     - postgres
-  #   networks:
-  #     - microservices-network
+  user-service:
+    build:
+      context: ./user-service
+    volumes:
+      - ./user-service:/app
+    ports:
+      - "5080:5080"   # REST
+      - "5168:5168"   # gRPC
+    env_file: ./user-service/.env
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - microservices-network
+  gamification-service:
+    build:
+      context: ./gamification-service
+    volumes:
+      - ./gamification-service:/app
+    ports:
+      - "5080:5080"   # REST
+      - "5168:5168"   # gRPC
+    env_file: ./gamification-service/.env
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - microservices-network
 
 networks:
   microservices-network:
