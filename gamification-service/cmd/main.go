@@ -17,9 +17,9 @@ import (
 
 func main() {
 	var myEnv map[string]string
-	myEnv, err := godotenv.Read()
+	myEnv, err := godotenv.Read("../.env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading .env file", err)
 	}
 
 	port := initializePortFlag(myEnv["PORT"])

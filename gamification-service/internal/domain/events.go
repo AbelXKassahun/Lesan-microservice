@@ -1,4 +1,4 @@
-package app
+package domain
 
 type LessonCompletedEvent struct {
 	Event     string `json:"event"`

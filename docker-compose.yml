@@ -1,5 +1,5 @@
 services:
-  redis:
+  redis-lesan:
     image: redis:alpine
     ports:
       - "6379:6379"
@@ -10,7 +10,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: postgreSQL_v2
+    container_name: postgreSQL_lesan
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -46,36 +46,36 @@ services:
   #   networks:
   #     - microservices-network
 
-  user-service:
-    build:
-      context: ./user-service
-    volumes:
-      - ./user-service:/app
-    ports:
-      - "5080:5080"   # REST
-      - "5168:5168"   # gRPC
-    env_file: ./user-service/.env
-    environment:
-      - DOTNET_ENVIRONMENT=Development
-    depends_on:
-      - redis
-      - postgres
-    networks:
-      - microservices-network
-  gamification-service:
-    build:
-      context: ./gamification-service
-    volumes:
-      - ./gamification-service:/app
-    ports:
-      - "5080:5080"   # REST
-      - "5168:5168"   # gRPC
-    env_file: ./gamification-service/.env
-    depends_on:
-      - redis
-      - postgres
-    networks:
-      - microservices-network
+  # user-service:
+  #   build:
+  #     context: ./user-service
+  #   volumes:
+  #     - ./user-service:/app
+  #   ports:
+  #     - "5080:5080"   # REST
+  #     - "5168:5168"   # gRPC
+  #   env_file: ./user-service/.env
+  #   environment:
+  #     - DOTNET_ENVIRONMENT=Development
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #   networks:
+  #     - microservices-network
+  # gamification-service:
+  #   build:
+  #     context: ./gamification-service
+  #   volumes:
+  #     - ./gamification-service:/app
+  #   ports:
+  #     - "5080:5080"   # REST
+  #     - "5168:5168"   # gRPC
+  #   env_file: ./gamification-service/.env
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #   networks:
+  #     - microservices-network
 
 networks:
   microservices-network:

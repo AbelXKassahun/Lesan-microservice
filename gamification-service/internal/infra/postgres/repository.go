@@ -1,40 +1,42 @@
 package postgres
 
 import (
-	"context"
-	"errors"
-
-	"github.com/jackc/pgx/v5"
-	"gamification-service/internal/models"
+	
+	"gorm.io/gorm"
+	"gamification-service/internal/domain"
 )
 
 type XPRepo struct {
-	DB *pgx.Conn
+	DB *gorm.DB
 }
 
-func NewXPRepo(db *pgx.Conn) *XPRepo {
+func NewXPRepo(db *gorm.DB) *XPRepo {
 	return &XPRepo{DB: db}
 }
 
-func (r *XPRepo) GetXPByUserID(userID string) (*models.UserXP, error) {
-	var xp models.UserXP
-	err := r.DB.QueryRow(context.Background(),
-		`SELECT user_id, total_xp FROM user_xp WHERE user_id = $1`, userID,
-	).Scan(&xp.UserID, &xp.Total)
-
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, nil
+func (r *XPRepo) GetXPByUserID(userID string) (*domain.UserXP, error) {
+	var xp domain.UserXP
+	result := r.DB.First(&xp, "user_id = ?", userID)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, result.Error
 	}
-	return &xp, err
+	return &xp, nil
 }
 
 func (r *XPRepo) AddXP(userID string, amount int) error {
-	_, err := r.DB.Exec(context.Background(), `
-		INSERT INTO user_xp (user_id, total_xp)
-		VALUES ($1, $2)
-		ON CONFLICT (user_id)
-		DO UPDATE SET total_xp = user_xp.total_xp + $2
-	`, userID, amount)
+	var xp domain.UserXP
+	result := r.DB.First(&xp, "user_id = ?", userID)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			xp = domain.UserXP{UserID: userID, Total: amount}
+			return r.DB.Create(&xp).Error
+		}
+		return result.Error
+	}
 
-	return err
+	xp.Total += amount
+	return r.DB.Save(&xp).Error
 }

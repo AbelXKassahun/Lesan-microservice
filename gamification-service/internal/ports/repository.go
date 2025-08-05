@@ -1,8 +1,8 @@
 package ports
 
-import "gamification-service/internal/models"
+import "gamification-service/internal/domain"
 
 type XPRepository interface {
-	GetXPByUserID(userID string) (*models.UserXP, error)
+	GetXPByUserID(userID string) (*domain.UserXP, error)
 	AddXP(userID string, xp int) error
 }

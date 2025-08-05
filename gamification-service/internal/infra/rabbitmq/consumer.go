@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"gamification-service/internal/app"
+	"gamification-service/internal/domain"
 
 	"github.com/streadway/amqp"
 )
@@ -46,7 +47,7 @@ func StartLessonCompletedConsumer(rabbitURL string, xpService *app.XPService) er
 
 	go func() {
 		for d := range msgs {
-			var event app.LessonCompletedEvent
+			var event domain.LessonCompletedEvent
 			err := json.Unmarshal(d.Body, &event)
 			if err != nil {
 				log.Println("❌ Failed to parse event:", err)
