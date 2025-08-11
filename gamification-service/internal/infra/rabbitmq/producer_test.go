@@ -1,5 +1,8 @@
 package rabbitmq_test
-
+// go test -count=1 ./internal/infra/rabbitmq -v
+// or
+// go clean -testcache
+// go test ./internal/infra/rabbitmq -v
 import (
 	"encoding/json"
 	"log"

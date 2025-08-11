@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	
-	"gorm.io/gorm"
 	"gamification-service/internal/domain"
+
+	"gorm.io/gorm"
 )
 
 type XPRepo struct {
@@ -17,13 +17,8 @@ func NewXPRepo(db *gorm.DB) *XPRepo {
 func (r *XPRepo) GetXPByUserID(userID string) (*domain.UserXP, error) {
 	var xp domain.UserXP
 	result := r.DB.First(&xp, "user_id = ?", userID)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
-		return nil, result.Error
-	}
-	return &xp, nil
+
+	return &xp, result.Error
 }
 
 func (r *XPRepo) AddXP(userID string, amount int) error {
@@ -38,5 +33,14 @@ func (r *XPRepo) AddXP(userID string, amount int) error {
 	}
 
 	xp.Total += amount
+	xp.League = domain.DetermineLeague(xp.Total)
+
 	return r.DB.Save(&xp).Error
+}
+
+
+func (r *XPRepo)GetUsersByLeague(league string) (*[]domain.UserXP, error){
+	var users []domain.UserXP
+    result := r.DB.Where("league = ?", league).Find(&users)
+    return &users, result.Error
 }

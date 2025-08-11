@@ -10,7 +10,24 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func StartLessonCompletedConsumer(rabbitURL string, xpService *app.XPService) error {
+type LessonCompletedConsumer struct {
+	XPService     *app.XPService
+	StreakService *app.StreakService
+	BadgeService  *app.BadgeService
+}
+
+
+func NewLessonCompletedConsumer(xpService *app.XPService,
+	streakService *app.StreakService,
+	badgeService *app.BadgeService) *LessonCompletedConsumer {
+	return &LessonCompletedConsumer{
+		XPService:     xpService,
+		StreakService: streakService,
+		BadgeService:  badgeService,
+	}
+}
+
+func (c *LessonCompletedConsumer) StartLessonCompletedConsumer(rabbitURL string) error {
 	conn, err := amqp.Dial(rabbitURL)
 	if err != nil {
 		return err
@@ -57,7 +74,17 @@ func StartLessonCompletedConsumer(rabbitURL string, xpService *app.XPService) er
 
 			// XP/streak/badge logic
 			if event.Event == "LessonCompleted" {
-				xpService.HandleLessonCompleted(event)
+				// this (the block of code in this `if statement`) needs to be refactored, logic should be handled i n another file, this file is only for consuming events
+				c.XPService.UpdateXP(event.UserID, event.XP)
+				streak, _ := c.StreakService.UpdateStreak(event.UserID)
+				switch streak {
+				case 1:
+					c.BadgeService.TryAwardBadge(event.UserID, domain.FirstLesson.String())
+					c.XPService.UpdateXP(event.UserID, 100)
+				case 7:
+					c.BadgeService.TryAwardBadge(event.UserID, domain.FirstWeek.String())
+					c.XPService.UpdateXP(event.UserID, 250)
+				}
 			}
 
 		}
