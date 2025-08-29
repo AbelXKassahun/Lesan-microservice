@@ -14,9 +14,9 @@ using Profile.Dto;
 namespace Profile.Controller
 {
     [ApiController]
-    [Route("/api/v{version:apiVersion}/user/[controller]")]
+    // [Route("/api/v{version:apiVersion}/user/[controller]")]
     [Route("/api/user/[controller]")]
-    [ApiVersion("2.0")]
+    // [ApiVersion("2.0")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProfileController : ControllerBase
     {

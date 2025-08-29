@@ -199,7 +199,7 @@ namespace user_service.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ProfileImageUrl")
+                    b.Property<string>("ProfileImagePath")
                         .HasColumnType("text");
 
                     b.Property<string>("RefreshToken")

@@ -57,7 +57,7 @@ func TestPublishLessonCompletedEvent(t *testing.T) {
 
 	event := LessonCompletedEvent{
 		Event:     "LessonCompleted",
-		UserID:    "5c8530b5-5056-466c-b82f-82874cf226c4",
+		UserID:    "u124",
 		LessonID:  "lessonA",
 		Timestamp: time.Now().Format(time.RFC3339),
 		XP:        15,

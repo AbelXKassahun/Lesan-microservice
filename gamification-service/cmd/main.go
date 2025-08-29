@@ -1,10 +1,10 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"log"
-	"net/http"
+		"flag"
+		"fmt"
+		"log"
+		"net/http"
 
 	"gamification-service/internal/api"
 	"gamification-service/internal/app"

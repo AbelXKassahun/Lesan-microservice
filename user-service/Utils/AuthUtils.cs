@@ -16,9 +16,10 @@ namespace UserService.Utils
             DotNetEnv.Env.Load("../");
             string secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 
-            // After successful login
-            var tokenHandler = new JwtSecurityTokenHandler();
+            // // After successful login
             var key = Encoding.UTF8.GetBytes(secretKey);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -29,7 +30,7 @@ namespace UserService.Utils
                 }),
                 Expires = DateTime.UtcNow.AddHours(18), // 18 hours
                 Issuer = "users-service",
-                Audience = "ticket-users",
+                Audience = "lesan-microservices",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -46,10 +47,11 @@ namespace UserService.Utils
             return Convert.ToBase64String(randomBytes);
         }
 
+
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             DotNetEnv.Env.Load("../");
-            string secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+            var secretKey = Environment.GetEnvironmentVariable("JWT_KID");
 
             var tokenValidationParameters = new TokenValidationParameters
             {

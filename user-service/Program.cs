@@ -15,7 +15,13 @@ using UserService.Utils;
 using UserService.service;
 using StackExchange.Redis;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+// this is run only once
+// KeyUtils keyUtils = new KeyUtils();
+// keyUtils.generateKeys();
 
 builder.Services.AddControllers();
 

@@ -12,8 +12,8 @@ using UsersService.Data;
 namespace user_service.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250627111623_profileScheme")]
-    partial class profileScheme
+    [Migration("20250826070421_initial-migration")]
+    partial class initialmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -202,7 +202,7 @@ namespace user_service.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ProfileImageUrl")
+                    b.Property<string>("ProfileImagePath")
                         .HasColumnType("text");
 
                     b.Property<string>("RefreshToken")

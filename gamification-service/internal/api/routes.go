@@ -2,6 +2,7 @@ package api
 
 import (
 	"gamification-service/internal/handler"
+	"gamification-service/internal/api/middleware"
 	"net/http"
 )
 
@@ -22,17 +23,20 @@ func NewRoutes(xpHandler *handler.XPHandler, streakHandler *handler.StreakHandle
 }
 
 func (r *RoutesType) Routes() *http.ServeMux {
-	router := http.NewServeMux()
-	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	mainRouter := http.NewServeMux() 
+	protected_router := http.NewServeMux()
+	
+	mainRouter.HandleFunc("GET /api/game-service/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Gamification Service is up!"))
 	})
-	router.HandleFunc("GET /xp", r.XPHandler.GetXPByUserID)
-	router.HandleFunc("GET /streak", r.StreakHandler.GetStreakByUserID)
-	router.HandleFunc("GET /badge", r.BadgeHandler.GetBadgesByUserID)
+	protected_router.HandleFunc("GET /api/game-service/xp", r.XPHandler.GetXPByUserID)
+	protected_router.HandleFunc("GET /api/game-service/streak", r.StreakHandler.GetStreakByUserID)
+	protected_router.HandleFunc("GET /api/game-service/badge", r.BadgeHandler.GetBadgesByUserID)
 
 	// most likely to be used a lot
-	router.HandleFunc("GET /stats", r.AggregateHandler.GetUserStats)
-	router.HandleFunc("GET /league", r.XPHandler.GetUsersByLeague)
-	
-	return router
+	protected_router.HandleFunc("GET /api/game-service/stats", r.AggregateHandler.GetUserStats)
+	protected_router.HandleFunc("GET /api/game-service/league", r.XPHandler.GetUsersByLeague)
+
+	mainRouter.Handle("/api/game-service/", middleware.AuthMiddleware(protected_router))
+	return mainRouter
 }
