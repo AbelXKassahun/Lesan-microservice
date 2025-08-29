@@ -40,9 +40,9 @@ services:
   #     - "8080:8080"     # incoming traffic
   #   volumes:
   #     - ./envoy.yaml:/etc/envoy/envoy.yaml
-  #   depends_on:
-  #     - user-service
-  #     - ticket-service
+  #   # depends_on:
+  #   #   - user-service
+  #   #   - ticket-service
   #   networks:
   #     - microservices-network
 

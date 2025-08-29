@@ -18,44 +18,22 @@ static_resources:
                       domains: ["*"]
                       routes:
                         # User            
-                        # Rewrites /api/user to /api/v2/user
                         - match:
                             prefix: "/api/user"
                           route:
                             cluster: user-service
-                            prefix_rewrite: "/api/v2/user"
 
-                        # Leaves /api/v1/user unchanged
+                        # Gamification Service
                         - match:
-                            prefix: "/api/v1/user"
+                            prefix: "/api/game-service"
                           route:
-                            cluster: user-service
+                            cluster: gamification-service
 
-                        # Leaves /api/v2/user unchanged
-                        - match:
-                            prefix: "/api/v2/user"
-                          route:
-                            cluster: user-service
-
-                        # Ticket
-                        # Rewrites /api/ticket to /api/v2/ticket
-                        - match:
-                            prefix: "/api/ticket"
-                          route:
-                            cluster: ticket-service
-                            prefix_rewrite: "/api/v2/ticket"
-
-                        # Leaves /api/v1/ticket unchanged
-                        - match:
-                            prefix: "/api/v1/ticket"
-                          route:
-                            cluster: ticket-service
-
-                        # Leaves /api/v2/ticket unchanged
-                        - match:
-                            prefix: "/api/v2/ticket"
-                          route:
-                            cluster: ticket-service
+                        # Speech models
+                        # - match:
+                        #     prefix: "/api/models"
+                        #   route:
+                        #     cluster: amharic-speech-service
 
                 http_filters:
                   - name: envoy.filters.http.router
@@ -74,21 +52,36 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: user-service
+                      address: host.docker.internal
                       # port_value: 5168
                       port_value: 5080
 
-    - name: ticket-service
+    - name: gamification-service
       connect_timeout: 0.25s
       type: logical_dns
       lb_policy: round_robin
       load_assignment:
-        cluster_name: ticket-service
+        cluster_name: gamification-service
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address:
-                      address: ticket-service
+                      address: host.docker.internal
                       # port_value: 5144
-                      port_value: 5090
+                      port_value: 8082
+
+    # - name: amharic-speech-service
+    #   connect_timeout: 0.25s
+    #   type: logical_dns
+    #   lb_policy: round_robin
+    #   load_assignment:
+    #     cluster_name: amharic-speech-service
+    #     endpoints:
+    #       - lb_endpoints:
+    #           - endpoint:
+    #               address:
+    #                 socket_address:
+    #                   address: amharic-speech-service
+    #                   # port_value: 5144
+    #                   port_value: 8000

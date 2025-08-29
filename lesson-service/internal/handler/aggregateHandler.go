@@ -2,16 +2,13 @@ package handler
 
 import (
 	"encoding/json"
+	"lesson-service/internal/app"
+	"lesson-service/internal/domain"
 	"log"
 	"net/http"
-	
+
 	"gorm.io/gorm"
-
-	"gamification-service/internal/app"
-	"gamification-service/internal/domain"
-	"gamification-service/internal/utils"
 )
-
 
 type AggregatHandler struct {
 	XPService     *app.XPService
@@ -36,14 +33,9 @@ func NewAggregateHandler(xpService *app.XPService,
 }
 
 func (h *AggregatHandler) GetUserStats(w http.ResponseWriter, r *http.Request) {
-	var response Stats
+	var stats Stats
 	var err error
-	var userID string
-	
-	userID = r.URL.Query().Get("user_id")
-	if userID == "" {
-		userID = utils.GetUserFromClaims(w, r)
-	}
+	userID := r.URL.Query().Get("user_id")
 
 	xp, err := h.XPService.GetXPByUserID(userID)
 	if err != nil {
@@ -78,7 +70,7 @@ func (h *AggregatHandler) GetUserStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response = Stats{
+	stats = Stats{
 		XP:     xp,
 		Streak: streak,
 		Badge:  badges,
@@ -86,7 +78,7 @@ func (h *AggregatHandler) GetUserStats(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if err := json.NewEncoder(w).Encode(stats); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

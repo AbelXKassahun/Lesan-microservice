@@ -1,11 +1,18 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"gamification-service/internal/app"
+	"gamification-service/internal/utils"
 )
+
+type XPResponse struct {
+	UserID string `json:"userID"`
+	TotalXP int `json:"totalXP"`
+	League string `json:"league"`
+}
 
 type XPHandler struct {
 	XPService *app.XPService
@@ -16,14 +23,28 @@ func NewXPHandler(xpService *app.XPService) *XPHandler {
 }
 
 func (h *XPHandler) GetXPByUserID(w http.ResponseWriter, r *http.Request) {
-	userID := r.URL.Query().Get("user_id")
+	var userID string
+	userID = r.URL.Query().Get("user_id")
+	if userID == "" {
+		userID = utils.GetUserFromClaims(w, r)
+	}
+
 	xp, err := h.XPService.GetXPByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("%d", xp.Total)))
+
+	response := XPResponse {
+		UserID: xp.UserID,
+		TotalXP: xp.Total,
+		League: string(xp.League),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (h *XPHandler) GetUsersByLeague(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +54,18 @@ func (h *XPHandler) GetUsersByLeague(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("%v", xp)))
+
+	var response  []XPResponse
+	for _, row := range *xp {
+		response = append(response, XPResponse{
+				UserID: row.UserID,
+				TotalXP: row.Total,
+				League: string(row.League),
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

@@ -1,11 +1,18 @@
 package handler
 
 import (
-	"fmt"
-	"gamification-service/internal/app"
+	"encoding/json"
 	"net/http"
+
+	"gamification-service/internal/app"
+	"gamification-service/internal/utils"
 )
 
+type StreakResponse struct {
+	UserID string `json:"userId"`
+	CurrentStreak int `json:"currentStreak"`
+	LastCompleted string `json:"lastCompleted"`
+}
 type StreakHandler struct {
 	StreakService *app.StreakService
 }
@@ -15,12 +22,25 @@ func NewStreakHandler(streakService *app.StreakService) *StreakHandler {
 }
 
 func (h *StreakHandler) GetStreakByUserID(w http.ResponseWriter, r *http.Request) {
-	userID := r.URL.Query().Get("user_id")
+	var userID string
+	userID = r.URL.Query().Get("user_id")
+	if userID == "" {
+		userID = utils.GetUserFromClaims(w, r)
+	}
+
 	streak, err := h.StreakService.GetStreakByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("%v", streak))) // might need to be marshaled
+	response := StreakResponse{
+		UserID: streak.UserID,
+		CurrentStreak: streak.CurrentStreak,
+		LastCompleted: streak.LastCompleted.String(),
+	}
+	
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

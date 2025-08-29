@@ -103,12 +103,12 @@ async def text_to_speech(
     logger.info(f"TTS audio saved to: {output_path}")
 
 
-@app.get("/")
+@app.get("/api/models")
 async def root():
     return {"message": "Amharic STT & TTS", "status": "running"}
 
 
-@app.get("/health")
+@app.get("/api/models/health")
 async def health_check():
     return {
         "status": "healthy",
@@ -119,7 +119,7 @@ async def health_check():
     }
 
 
-@app.post("/speech-to-text")
+@app.post("/api/models/speech-to-text")
 async def stt_endpoint(
     audio_file: UploadFile = File(...),
 ):
@@ -166,7 +166,7 @@ class TTSRequest(BaseModel):
         return v.lower()
 
 
-@app.post("/text-to-speech")
+@app.post("/api/models/text-to-speech")
 async def tts_endpoint(
     request: TTSRequest,
 ):

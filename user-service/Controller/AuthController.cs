@@ -9,9 +9,9 @@ using UserService.Utils;
 namespace Auth.Controller
 {
     [ApiController]
-    [Route("/api/v{version:apiVersion}/user/[controller]")]
+    // [Route("/api/v{version:apiVersion}/user/[controller]")]
     [Route("/api/user/[controller]")]
-    [ApiVersion("2.0")]
+    // [ApiVersion("2.0")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -24,7 +24,7 @@ namespace Auth.Controller
         }
 
         [HttpPost("sign-up")]
-        [MapToApiVersion("2.0")]
+        // [MapToApiVersion("2.0")]
         public async Task<IActionResult> Signup([FromBody] AuthCredentialsDto model)
         {
             var user = new ApplicationUser
@@ -72,7 +72,7 @@ namespace Auth.Controller
         }
 
         [HttpPost("sign-in")]
-        [MapToApiVersion("2.0")]
+        // [MapToApiVersion("2.0")]
         public async Task<IActionResult> SignIn([FromBody] AuthCredentialsDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -93,6 +93,7 @@ namespace Auth.Controller
                 Email = model.Email,
                 Role = "User",
             });
+            Console.WriteLine($"@@@ user-id {user.Id}");
 
             // create refresh token and store it 
             var refreshToken = util.GenerateRefreshToken();
@@ -116,7 +117,7 @@ namespace Auth.Controller
 
 
         [HttpPost("refresh-token")]
-        [MapToApiVersion("2.0")]
+        // [MapToApiVersion("2.0")]
         public async Task<IActionResult> Refresh([FromBody] TokenRefreshRequest model)
         {
             AuthUtils util = new AuthUtils();

@@ -1,0 +1,74 @@
+{
+    "user-progress": {
+        "next-lesson-id": "898098sfegsef890-sfefs0989-3",
+        "level": "Beginner",
+        "currently-learning-skill": {
+            "Section": 1,
+            "unit": "1",
+            "unit-name": "Order Food"
+        },
+        "xp": 115,
+        "streak": "30 days",
+        "trail": [
+            {
+                "section": 1,
+                "unit": 1,
+                "unit-name": "Ordering Food",
+                "completed": false,
+                "number-of-lesson-collection": 2,
+                "lesson-collection-configs": [
+                    {
+                        "index": 0,
+                        "id": "fe7sfsf987564sff57987",
+                        "completed": true,
+                        "number-of-lessons": 2,
+                        "lessons-id": [
+                            {
+                                "lesson-id": "fe7sfsf987564sff57987-1",
+                                "completed": true
+                            },
+                            {
+                                "lesson-id": "fe7sfsf987564sff57987-2",
+                                "completed": true
+                            }
+                        ],
+                        "type-of-lesson-collection": "regular"
+                    },
+                    {
+                        "index": 1,
+                        "id": "ui8798fsef78gs2r3g5aa",
+                        "completed": false,
+                        "number-of-lessons": 3,
+                        "lessons-id": [
+                            {
+                                "lesson-id": "fe7sfsf987564sff-57987hr89-1",
+                                "completed": true
+                            },
+                            {
+                                "lesson-id": "fe7sfsf987564sff-57987kcse-2",
+                                "completed": true
+                            },
+                            {
+                                "lesson-id": "898098sfegsef890-sfefs0989-3",
+                                "completed": false
+                            }
+                        ],
+                        "type-of-lesson": "regular"
+                    }
+                ]
+            }
+        ]
+    },
+    "lesson": {
+        "id": "898098sfegsef890-sfefs0989-3",
+        "number-of-questions": 10,
+        "xp-awarded-on-completion": 100,
+        "questions": [
+            {
+                "type": "translation-question",
+                "question": "What is the main ingredient in a pizza?",
+                "answer": "Cheese"
+            }
+        ]
+    }
+}
