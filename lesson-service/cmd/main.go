@@ -5,12 +5,13 @@ import (
 	"log"
 	"net/http"
 
-	"lesson-service/internal/api"
-
 	"github.com/joho/godotenv"
-	// "lesson-service/internal/app"
-	// "lesson-service/internal/handler"
-	// "lesson-service/internal/infra/postgres"
+
+	"lesson-service/internal/api"
+	"lesson-service/internal/infra/postgres"
+	"lesson-service/internal/infra/storage"
+	"lesson-service/internal/app"
+	"lesson-service/internal/handler"
 )
 
 func main() {
@@ -32,22 +33,20 @@ func main() {
 }
 
 func DependencyInjection(DB_URL string) *api.Routes {
-	// db := storage.InitPostgres(DB_URL)
-	// // repos
-	// xpRepo := postgres.NewXPRepo(db)
-	// streakRepo := postgres.NewStreakRepo(db)
-	// badgeRepo := postgres.NewBadgeRepo(db)
-	// // services
-	// xpService := app.NewXPService(xpRepo)
-	// streakService := app.NewStreakService(streakRepo)
-	// badgeService := app.NewBadgeService(badgeRepo)
-	// // handlers
-	// xpHandler := handler.NewXPHandler(xpService)
-	// streakHandler := handler.NewStreakHandler(streakService)
-	// badgeHandler := handler.NewBadgeHandler(badgeService)
-	// aggregateHandler := handler.NewAggregateHandler(xpService, streakService, badgeService)
-
-	api := api.NewRoutes()
+	db := storage.InitPostgres(DB_URL)
+	// repos
+	userProgressRepo := postgres.NewUserProgressRepository(db)
+	unitRepository := postgres.NewUnitRepository(db)
+	sectionRepostory := postgres.NewSectionRepository(db)
+	lessonRepository := postgres.NewLessonRepository(db)
+	exerciseRepo := postgres.NewExerciseRepo(db)
+	// services
+	exerciseService := app.NewExerciseService(exerciseRepo)
+	userProgressService := app.NewUserProgressService(userProgressRepo, unitRepository, sectionRepostory, lessonRepository)
+	// handlers
+	exerciseHandler := handler.NewExerciseHandler(exerciseService, "") // pass valid bucket string not ""
+	userProgressHandler := handler.NewUserProgressHandler(*userProgressService)
+	api := api.NewRoutes(exerciseHandler, userProgressHandler)
 
 	return api
 }

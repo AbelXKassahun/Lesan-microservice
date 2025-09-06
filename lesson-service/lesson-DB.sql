@@ -58,55 +58,58 @@ VALUES
 ((SELECT id FROM units WHERE title = 'Food'), (SELECT id FROM sections WHERE type = 'core' AND unit_id = (SELECT id FROM units WHERE title = 'Food')), 
  'Lesson 2: Meals', 'Learn meal-related vocabulary', 3, 2);
 
+-- Exercises
 INSERT INTO exercises (lesson_id, type, subtype, instruction, data)
 VALUES
 -- Exercises for Lesson 1: Basic Greetings
 ((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'translation', 'block_build', 'Build the Amharic translation from the blocks.',
-  '{"source_text": "Hello, how are you?", "source_lang": "en", "target_lang": "am", "blocks": ["እንዴት", "ነህ", "ሰላም", "አይ"], "correct_sequences": [["ሰላም", "እንዴት", "ነህ"]]}'),
+  '{"prompt_text": "Hello, how are you?", "prompt_audio_url": "hello_how_are_you.mp3", "blocks": ["እንዴት", "ነህ?", "ሰላም"], "correct_answer": "ሰላም እንዴት ነህ?"}'),
 ((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'translation', 'free_text', 'Type the Amharic translation.',
-  '{"source_text": "Thank you", "source_lang": "en", "target_lang": "am", "correct_answers": ["አመሰግናለሁ"]}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'translation', 'matching', 'Match the English greetings to their Amharic equivalents.',
-  '{"pairs": [{"left_id": "l1", "left_text": "Hello", "right_id": "r1", "right_text": "ሰላም"}, {"left_id": "l2", "left_text": "Goodbye", "right_id": "r2", "right_text": "ደህና ሁን"}], "shuffle": true}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'fill_in_blank', NULL, 'Choose the correct word for the blank.',
-  '{"sentence_with_placeholders": "____ እንዴት ነህ?", "options": [{"id": "o1", "text": "እንጀራ"}, {"id": "o2", "text": "ሰላም"}, {"id": "o3", "text": "ውሻ"}], "correct_option_id": "o2"}'),
+  '{"prompt_text": "Thank you", "prompt_audio_url": "thank_you.mp3", "correct_answer": "አመሰግናለሁ"}'),
 ((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'translation', 'free_text', 'Type the Amharic translation.',
-  '{"source_text": "Good morning", "source_lang": "en", "target_lang": "am", "correct_answers": ["እንደምን አደርክ"]}'),
+  '{"prompt_text": "Good morning", "prompt_audio_url": "good_morning.mp3", "correct_answer": "እንደምን አደርክ"}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'complete_sentence', 'partial_free_text', 'Complete the sentence.',
+  '{"reference_text": "I am fine.", "display_text": "እኔ ____ ነኝ።", "correct_answer": "ደህና"}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'speaking', NULL, 'Speak this sentence aloud.',
+  '{"prompt_text": "Goodbye", "prompt_audio_url": "goodbye.mp3", "correct_answer": "ደህና ሁን"}'),
 
 -- Exercises for Lesson 2: How are you?
 ((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'translation', 'block_build', 'Build the Amharic translation from the blocks.',
-  '{"source_text": "I am fine, thank you.", "source_lang": "en", "target_lang": "am", "blocks": ["ነኝ", "አመሰግናለሁ", "ደህና", "እኔ"], "correct_sequences": [["ደህና", "ነኝ", "አመሰግናለሁ"]]}'),
+  '{"prompt_text": "I am fine, thank you.", "prompt_audio_url": "i_am_fine_thank_you.mp3", "blocks": ["ነኝ", "አመሰግናለሁ", "ደህና", "፣"], "correct_answer": "ደህና ነኝ፣ አመሰግናለሁ"}'),
 ((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'translation', 'free_text', 'Type the Amharic translation.',
-  '{"source_text": "What is your name?", "source_lang": "en", "target_lang": "am", "correct_answers": ["ስምህ ማን ነው?"]}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'complete_sentence', 'select_from_blocks', 'Fill the missing words using the blocks.',
-  '{"target_sentence": "ስሜ ማርያም ነው", "display_with_blanks": "ስሜ ____ ነው", "blocks": ["ማርያም", "ውሻ", "ድመት"], "correct_sequences": [["ማርያም"]]}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'translation', 'matching', 'Match the English phrases to their Amharic equivalents.',
-  '{"pairs": [{"left_id": "l1", "left_text": "How are you?", "right_id": "r1", "right_text": "እንዴት ነህ?"}, {"left_id": "l2", "left_text": "I am fine", "right_id": "r2", "right_text": "ደህና ነኝ"}], "shuffle": true}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'speaking', NULL, 'Listen and repeat the sentence.',
-  '{"target_text": "ደህና ነኝ", "reference_audio_url": "https://example.com/audio/dehena_negn.mp3", "scoring": {"min_confidence": 0.7}, "max_record_seconds": 5}'),
+  '{"prompt_text": "What is your name?", "prompt_audio_url": "what_is_your_name.mp3", "correct_answer": "ስምህ ማን ነው?"}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'fill_in_blank', NULL, 'Choose the correct word for the blank.',
+  '{"display_text": "ስሜ ____ ነው።", "options": [{"id": 0, "text": "ማርያም"}, {"id": 1, "text": "ዮሐንስ"}, {"id": 2, "text": "ሰላም"}], "correct_option_id": 0}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'complete_sentence', 'partial_free_text', 'Complete the sentence.',
+  '{"reference_text": "My name is John.", "display_text": "ስሜ ____ ነው።", "correct_answer": "ዮሐንስ"}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 2: How are you?'), 'speaking', NULL, 'Speak this sentence aloud.',
+  '{"prompt_text": "How are you?", "prompt_audio_url": "how_are_you.mp3", "correct_answer": "እንዴት ነሽ?"}'),
 
--- Exercises for Lesson 3: Fruits
+-- Exercises for Lesson 1: Fruits
 ((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'translation', 'free_text', 'Type the Amharic translation.',
-  '{"source_text": "Apple", "source_lang": "en", "target_lang": "am", "correct_answers": ["ፖም"]}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'picture_matching', NULL, 'Select the correct image for the word.',
-  '{"word": "ብርቱካን", "audio": "https://example.com/audio/brtukan.mp3", "options": [{"id": "a", "image_url": "https://placehold.co/150x150/ff9900/000000?text=Orange"}, {"id": "b", "image_url": "https://placehold.co/150x150/ffffff/000000?text=Apple"}, {"id": "c", "image_url": "https://placehold.co/150x150/ffd700/000000?text=Banana"}], "correct_option_id": "a"}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'translation', 'block_build', 'Build the Amharic translation from the blocks.',
-  '{"source_text": "I eat a banana.", "source_lang": "en", "target_lang": "am", "blocks": ["ሙዝ", "እበላለሁ", "እኔ"], "correct_sequences": [["እኔ", "ሙዝ", "እበላለሁ"]]}'),
+  '{"prompt_text": "Apple", "prompt_audio_url": "apple.mp3", "correct_answer": "ፖም"}'),
 ((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'fill_in_blank', NULL, 'Choose the correct word for the blank.',
-  '{"sentence_with_placeholders": "እኔ ____ እበላለሁ።", "options": [{"id": "o1", "text": "ውሻ"}, {"id": "o2", "text": "ፖም"}, {"id": "o3", "text": "መኪና"}], "correct_option_id": "o2"}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'translation', 'matching', 'Match the English words to their Amharic equivalents.',
-  '{"pairs": [{"left_id": "l1", "left_text": "Mango", "right_id": "r1", "right_text": "ማንጎ"}, {"left_id": "l2", "left_text": "Pineapple", "right_id": "r2", "right_text": "አናናስ"}], "shuffle": true}'),
+  '{"display_text": "እኔ ____ እበላለሁ።", "options": [{"id": 0, "text": "ፖም"}, {"id": 1, "text": "ውሻ"}, {"id": 2, "text": "መኪና"}], "correct_option_id": 0}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'translation', 'block_build', 'Build the Amharic translation from the blocks.',
+  '{"prompt_text": "I eat a banana.", "prompt_audio_url": "i_eat_a_banana.mp3", "blocks": ["ሙዝ", "እበላለሁ", "እኔ"], "correct_answer": "እኔ ሙዝ እበላለሁ።"}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'translation', 'free_text', 'Type the Amharic translation.',
+  '{"prompt_text": "Orange", "prompt_audio_url": "orange.mp3", "correct_answer": "ብርቱካን"}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 1: Fruits'), 'fill_in_blank', NULL, 'Choose the correct word for the blank.',
+  '{"display_text": "ይህ ____ ነው።", "options": [{"id": 0, "text": "ሙዝ"}, {"id": 1, "text": "ፖም"}, {"id": 2, "text": "ብርቱካን"}], "correct_option_id": 0}'),
 
--- Exercises for Lesson 4: Meals
+-- Exercises for Lesson 2: Meals
 ((SELECT id FROM lessons WHERE title = 'Lesson 2: Meals'), 'translation', 'free_text', 'Type the Amharic translation.',
-  '{"source_text": "Breakfast", "source_lang": "en", "target_lang": "am", "correct_answers": ["ቁርስ"]}'),
+  '{"prompt_text": "Breakfast", "prompt_audio_url": "breakfast.mp3", "correct_answer": "ቁርስ"}'),
 ((SELECT id FROM lessons WHERE title = 'Lesson 2: Meals'), 'translation', 'block_build', 'Build the Amharic translation from the blocks.',
-  '{"source_text": "I drink water.", "source_lang": "en", "target_lang": "am", "blocks": ["እጠጣለሁ", "ውሃ", "እኔ"], "correct_sequences": [["እኔ", "ውሃ", "እጠጣለሁ"]]}'),
+  '{"prompt_text": "I drink water.", "prompt_audio_url": "i_drink_water.mp3", "blocks": ["እጠጣለሁ", "ውሃ", "እኔ"], "correct_answer": "እኔ ውሃ እጠጣለሁ።"}'),
 ((SELECT id FROM lessons WHERE title = 'Lesson 2: Meals'), 'fill_in_blank', NULL, 'Choose the correct word for the blank.',
-  '{"sentence_with_placeholders": "ምሳ ____ ነው።", "options": [{"id": "o1", "text": "ጣፋጭ"}, {"id": "o2", "text": "ውሃ"}, {"id": "o3", "text": "ፖም"}], "correct_option_id": "o1"}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 2: Meals'), 'translation', 'matching', 'Match the English words to their Amharic equivalents.',
-  '{"pairs": [{"left_id": "l1", "left_text": "Food", "right_id": "r1", "right_text": "ምግብ"}, {"left_id": "l2", "left_text": "Drink", "right_id": "r2", "right_text": "መጠጥ"}], "shuffle": true}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 2: Meals'), 'speaking', NULL, 'Listen and repeat the sentence.',
-  '{"target_text": "ምሳ በጣም ጣፋጭ ነው", "reference_audio_url": "https://example.com/audio/misa_tatafich.mp3", "scoring": {"min_confidence": 0.7}, "max_record_seconds": 8}');
+  '{"display_text": "ምግቡ ____ ነው።", "options": [{"id": 0, "text": "ጣፋጭ"}, {"id": 1, "text": "ቀዝቃዛ"}, {"id": 2, "text": "ትኩስ"}], "correct_option_id": 0}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 2: Meals'), 'translation', 'free_text', 'Type the Amharic translation.',
+  '{"prompt_text": "Lunch", "prompt_audio_url": "lunch.mp3", "correct_answer": "ምሳ"}'),
+((SELECT id FROM lessons WHERE title = 'Lesson 2: Meals'), 'speaking', NULL, 'Speak this sentence aloud.',
+  '{"prompt_text": "Dinner", "prompt_audio_url": "dinner.mp3", "correct_answer": "እራት"}');
+
+
 
 INSERT INTO user_progress (user_id, current_unit, current_section, current_lesson)
 VALUES

@@ -6,8 +6,6 @@ import (
 
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
-		&UserXP{},
-		&UserStreak{},
-		&UserBadge{},
+		&Exercise{},
 	)
 }

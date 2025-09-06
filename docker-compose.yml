@@ -35,7 +35,7 @@ services:
       - microservices-network
 
   app:
-    image: amharic-speech-service-docker-1:latest
+    image: amharic-speech-service-docker-2:latest
     container_name: amharic-speech-service
     ports:
       - "8000:8000"
