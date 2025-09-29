@@ -193,6 +193,5 @@ namespace Profile.Controller
                 Console.WriteLine($"Error deleting image: {ex.Message}");
             }
         }
-
     }
 }

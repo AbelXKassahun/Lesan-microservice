@@ -6,5 +6,6 @@ import "time"
 type UserStreak struct {
 	UserID        string `gorm:"primaryKey;type:text"`
 	CurrentStreak int
+	ActiveDays int
 	LastCompleted time.Time
 }

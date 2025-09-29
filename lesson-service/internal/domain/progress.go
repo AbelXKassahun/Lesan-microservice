@@ -14,3 +14,8 @@ type UserProgress struct {
 	CurrentLesson uuid.UUID `gorm:"type:uuid;not null" json:"current_lesson"`
 	CreatedAt     time.Time `gorm:"autoCreateTime" json:"created_at"`
 }
+
+// this fixes the "user_progresses does not exist" issue
+func (UserProgress) TableName() string {
+	return "user_progress"
+}

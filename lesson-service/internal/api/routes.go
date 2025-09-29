@@ -29,7 +29,7 @@ func (r *Routes) Routes() *http.ServeMux {
 		w.Write([]byte("Lesson Service is up!"))
 	})
 
-	protected_router.HandleFunc("/api/lesson-service/exercises/", r.ExerciseHandler.HandleExercise)
+	protected_router.HandleFunc("/api/lesson-service/exercise/", r.ExerciseHandler.HandleExercise)
 	
 	protected_router.HandleFunc("/api/lesson-service/exercises/lesson", r.ExerciseHandler.HandleExercisesByLesson)
 

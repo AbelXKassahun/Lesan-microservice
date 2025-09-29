@@ -70,7 +70,7 @@ VALUES
   '{"prompt_text": "Good morning", "prompt_audio_url": "good_morning.mp3", "correct_answer": "እንደምን አደርክ"}'),
 ((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'complete_sentence', 'partial_free_text', 'Complete the sentence.',
   '{"reference_text": "I am fine.", "display_text": "እኔ ____ ነኝ።", "correct_answer": "ደህና"}'),
-((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'speaking', NULL, 'Speak this sentence aloud.',
+@@@@@@@((SELECT id FROM lessons WHERE title = 'Lesson 1: Basic Greetings'), 'speaking', NULL, 'Speak this sentence aloud.',
   '{"prompt_text": "Goodbye", "prompt_audio_url": "goodbye.mp3", "correct_answer": "ደህና ሁን"}'),
 
 -- Exercises for Lesson 2: How are you?

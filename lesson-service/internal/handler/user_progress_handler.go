@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"lesson-service/internal/app"
+	"lesson-service/internal/utils"
 )
 
 type UserProgressHandler struct {
@@ -28,13 +29,14 @@ func (h *UserProgressHandler) GetUserProgress(w http.ResponseWriter, r *http.Req
 	}
 
 	// Expect /user-progress/{user_id}
-	parts := splitPath(r.URL.Path)
-	if len(parts) < 2 {
-		http.Error(w, "missing user_id", http.StatusBadRequest)
-		return
-	}
-
-	userID, err := uuid.Parse(parts[1])
+	// parts := splitPath(r.URL.Path)
+	// if len(parts) < 2 {
+	// 	http.Error(w, "missing user_id", http.StatusBadRequest)
+	// 	return
+	// }
+	user_id := utils.GetUserFromClaims(w, r)
+	
+	userID, err := uuid.Parse(user_id)
 	if err != nil {
 		http.Error(w, "invalid user_id", http.StatusBadRequest)
 		return

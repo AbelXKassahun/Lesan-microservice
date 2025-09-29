@@ -20,10 +20,10 @@ func NewExerciseHandler(s *app.ExerciseService, bucket string) *ExerciseHandler 
 	return &ExerciseHandler{service: s, assetBucket: bucket}
 }
 
-func (h *ExerciseHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/exercises/", h.HandleExercise)
-	mux.HandleFunc("/exercises/lesson/", h.HandleExercisesByLesson)
-}
+// func (h *ExerciseHandler) RegisterRoutes(mux *http.ServeMux) {
+// 	mux.HandleFunc("/exercises/", h.HandleExercise)
+// 	mux.HandleFunc("/exercises/lesson/", h.HandleExercisesByLesson)
+// }
 
 // dispatch dispatch baby
 func (h *ExerciseHandler) HandleExercise(w http.ResponseWriter, r *http.Request) {
@@ -70,13 +70,19 @@ func (h *ExerciseHandler) HandleExercisesByLesson(w http.ResponseWriter, r *http
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	if len(parts) < 3 {
-		http.Error(w, "missing lesson_id", http.StatusBadRequest)
+	// parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	// if len(parts) < 3 {
+	// 	http.Error(w, "missing lesson_id", http.StatusBadRequest)
+	// 	return
+	// }
+	// h.getExercisesByLesson(w, r, parts[2])
+	
+	lesson_id := r.URL.Query().Get("lesson_id")
+	if lesson_id == "" {
+		http.Error(w, "missing lesson id", http.StatusBadRequest)
 		return
 	}
-	h.getExercisesByLesson(w, r, parts[2])
+	h.getExercisesByLesson(w, r, lesson_id)
 }
 
 // handlers 
