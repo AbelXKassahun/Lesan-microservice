@@ -1,27 +1,22 @@
 {
     "user-progress": {
+        "current-unit": 2,
+        "current_section_id": "hf1sef23s1e2f1se2f1s",
         "next-lesson-id": "898098sfegsef890-sfefs0989-3",
-        "level": "Beginner",
-        "currently-learning-skill": {
-            "Section": 1,
-            "unit": "1",
-            "unit-name": "Order Food"
-        },
-        "xp": 115,
-        "streak": "30 days",
         "trail": [
             {
-                "section": 1,
                 "unit": 1,
-                "unit-name": "Ordering Food",
+                "unit-name": "Greetings",
+                "description": "Basic greetings in Amharic",
                 "completed": false,
-                "number-of-lesson-collection": 2,
-                "lesson-collection-configs": [
+                "section_count": 2,
+                "sections": [
                     {
-                        "index": 0,
                         "id": "fe7sfsf987564sff57987",
+                        "unit_id": "efs2651ff5sgs1561fs6e",
                         "completed": true,
-                        "number-of-lessons": 2,
+                        "lesson_count": 2,
+                        "order_index": 0,
                         "lessons-id": [
                             {
                                 "lesson-id": "fe7sfsf987564sff57987-1",
@@ -32,13 +27,14 @@
                                 "completed": true
                             }
                         ],
-                        "type-of-lesson-collection": "regular"
+                        "type": "regular"
                     },
                     {
-                        "index": 1,
                         "id": "ui8798fsef78gs2r3g5aa",
+                        "unit_id": "efs2651ff5sgs1561fs6e",
                         "completed": false,
-                        "number-of-lessons": 3,
+                        "lesson_count": 3,
+                        "order_index": 1,
                         "lessons-id": [
                             {
                                 "lesson-id": "fe7sfsf987564sff-57987hr89-1",
@@ -53,21 +49,9 @@
                                 "completed": false
                             }
                         ],
-                        "type-of-lesson": "regular"
+                        "type": "regular"
                     }
                 ]
-            }
-        ]
-    },
-    "lesson": {
-        "id": "898098sfegsef890-sfefs0989-3",
-        "number-of-questions": 10,
-        "xp-awarded-on-completion": 100,
-        "questions": [
-            {
-                "type": "translation-question",
-                "question": "What is the main ingredient in a pizza?",
-                "answer": "Cheese"
             }
         ]
     }

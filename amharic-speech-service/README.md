@@ -4,8 +4,8 @@ A FastAPI-based web service for Amharic Text-to-Speech (TTS) and Speech-to-Text 
 
 ## Features
 
--   **Speech-to-Text**: Convert Amharic audio files to text using SpeechBrain's Wav2Vec2 model
--   **Text-to-Speech**: Convert Amharic text to speech using Microsoft Edge TTS
+- **Speech-to-Text**: Convert Amharic audio files to text using SpeechBrain's Wav2Vec2 model
+- **Text-to-Speech**: Convert Amharic text to speech using Microsoft Edge TTS
 
 ## Installation
 
@@ -34,16 +34,16 @@ The API will be available at `http://localhost:8000`
 
 ### Health Check
 
--   `GET /health` - Check service status and model availability
+- `GET /health` - Check service status and model availability
 
 ### Speech-to-Text
 
--   `POST /speech-to-text` - Upload audio file (max 10MB) for transcription
+- `POST /speech-to-text` - Upload audio file (max 10MB) for transcription
 
 ### Text-to-Speech
 
--   `POST /text-to-speech` - Convert text to speech audio
--   Supported voices: `am-ET-MekdesNeural` (female), `am-ET-AmehaNeural` (male)
+- `POST /text-to-speech` - Convert text to speech audio
+- Supported voices: `am-ET-MekdesNeural` (female), `am-ET-AmehaNeural` (male)
 
 ## Usage Example
 
@@ -60,6 +60,6 @@ curl -X POST "http://localhost:8000/speech-to-text" \
 
 ## Requirements
 
--   Python 3.7+
--   Internet connection (for TTS model)
--   Audio files in supported formats (WAV, MP3, etc.)
+- Python 3.7+
+- Internet connection (for TTS model)
+- Audio files in supported formats (WAV, MP3, etc.)

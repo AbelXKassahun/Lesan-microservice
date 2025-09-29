@@ -1,38 +1,40 @@
 package api
 
 import (
-	"lesson-service/internal/handler"
 	"net/http"
+	"lesson-service/internal/api/middleware"
+	"lesson-service/internal/handler"
 )
 
-type RoutesType struct {
-	XPHandler *handler.XPHandler
-	StreakHandler *handler.StreakHandler
-	BadgeHandler *handler.BadgeHandler
-	AggregateHandler *handler.AggregatHandler
+type Routes struct {
+	ExerciseHandler *handler.ExerciseHandler
+	UserProgressHandler *handler.UserProgressHandler
 }
 
-func NewRoutes(xpHandler *handler.XPHandler, streakHandler *handler.StreakHandler, badgeHandler *handler.BadgeHandler, aggregateHandler *handler.AggregatHandler) *RoutesType {
-	return &RoutesType{
-		XPHandler: xpHandler,
-		StreakHandler: streakHandler,
-		BadgeHandler: badgeHandler,
-		AggregateHandler: aggregateHandler,
+func NewRoutes(
+	exerciseHandler *handler.ExerciseHandler, 
+	userProgressHandler *handler.UserProgressHandler,
+) *Routes {
+	return &Routes{
+		ExerciseHandler: exerciseHandler,
+		UserProgressHandler: userProgressHandler,
 	}
 }
 
-func (r *RoutesType) Routes() *http.ServeMux {
-	router := http.NewServeMux()
-	router.HandleFunc("/api/game-service/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Gamification Service is up!"))
-	})
-	router.HandleFunc("GET /api/game-service/xp", r.XPHandler.GetXPByUserID)
-	router.HandleFunc("GET /api/game-service/streak", r.StreakHandler.GetStreakByUserID)
-	router.HandleFunc("GET /api/game-service/badge", r.BadgeHandler.GetBadgesByUserID)
 
-	// most likely to be used a lot
-	router.HandleFunc("GET /api/game-service/stats", r.AggregateHandler.GetUserStats)
-	router.HandleFunc("GET /api/game-service/league", r.XPHandler.GetUsersByLeague)
+func (r *Routes) Routes() *http.ServeMux {
+	protected_router := http.NewServeMux()
+	main_router := http.NewServeMux()
+	main_router.HandleFunc("GET /api/lesson-service/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Lesson Service is up!"))
+	})
+
+	protected_router.HandleFunc("/api/lesson-service/exercise/", r.ExerciseHandler.HandleExercise)
 	
-	return router
+	protected_router.HandleFunc("/api/lesson-service/exercises/lesson", r.ExerciseHandler.HandleExercisesByLesson)
+
+	protected_router.HandleFunc("/api/lesson-service/user-progress", r.UserProgressHandler.GetUserProgress)
+	
+	main_router.Handle("/api/lesson-service/", middleware.AuthMiddleware(protected_router))
+	return main_router
 }

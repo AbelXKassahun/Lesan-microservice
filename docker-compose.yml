@@ -34,6 +34,54 @@ services:
     networks:
       - microservices-network
 
+  app:
+    image: amharic-speech-service-docker-2:latest
+    container_name: amharic-speech-service
+    ports:
+      - "8000:8000"
+    networks:
+      - microservices-network
+
+  # amharic-speech-service:
+  #   build: ./amharic-speech-service
+  #   ports:
+  #     - "8001:8001"
+  #   volumes:
+  #     - ./amharic-speech-service:/app
+  #   networks:
+  #     - microservices-network
+
+  # MinIO storage
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # Web console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - ./uploads:/data
+    networks:
+      - microservices-network
+
+  # MinIO Client (optional, for admin tasks)
+  mc:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (mc alias set local http://minio:9000 minioadmin minioadmin); do sleep 1; done;
+      mc mb local/exercises-audio;
+      mc mb local/exercises-images;
+      mc mb local/user-submissions;
+      tail -f /dev/null
+      "
+    networks:
+      - microservices-network
+
   # envoy:
   #   image: envoyproxy/envoy:v1.29-latest
   #   ports:

@@ -41,6 +41,6 @@ func (r *XPRepo) AddXP(userID string, amount int) error {
 
 func (r *XPRepo)GetUsersByLeague(league string) (*[]domain.UserXP, error){
 	var users []domain.UserXP
-    result := r.DB.Where("league = ?", league).Find(&users)
+    result := r.DB.Where("league = ?", league).Order("total DESC").Find(&users)
     return &users, result.Error
 }
