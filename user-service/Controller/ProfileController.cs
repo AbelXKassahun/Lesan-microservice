@@ -17,35 +17,43 @@ namespace Profile.Controller
     // [Route("/api/v{version:apiVersion}/user/[controller]")]
     [Route("/api/user/[controller]")]
     // [ApiVersion("2.0")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public class ProfileController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly TicketCleanupService.TicketCleanupServiceClient _ticketClient;
+        // private readonly TicketCleanupService.TicketCleanupServiceClient _ticketClient;
         private readonly ProfileUtils _profileUtils;
 
         public ProfileController(UserManager<ApplicationUser> userManager, TicketCleanupService.TicketCleanupServiceClient ticketClient, ProfileUtils profileUtils)
         {
             _userManager = userManager;
-            _ticketClient = ticketClient;
+            // _ticketClient = ticketClient;
             _profileUtils = profileUtils;
         }
 
         [HttpGet("me")]
         public async Task<IActionResult> GetOwnProfile()
         {
-            bool img404 = false;
+            byte[] fileBytes = Array.Empty<byte>();
+            string contentType = "-";
+            bool imageExists = false;
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound();
+            if (user == null)
+            {
+                Console.WriteLine($"here--{userId}");
+                return NotFound();
+            }
 
             var userImage = user.ProfileImagePath;
-            if (userImage == null || !System.IO.File.Exists(userImage))
-                img404 = true;
-
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(userImage);
-            var contentType = _profileUtils.GetContentType(userImage);
+            if (!string.IsNullOrEmpty(userImage) && System.IO.File.Exists(userImage))
+            {
+                imageExists = true;
+                fileBytes = await System.IO.File.ReadAllBytesAsync(userImage);
+                contentType = _profileUtils.GetContentType(userImage);
+            }
 
             return Ok(new UserProfileDto
             {
@@ -53,8 +61,8 @@ namespace Profile.Controller
                 Email = user.Email,
                 UserName = user.UserName == user.Email ? "" : user.UserName,
                 FullName = string.IsNullOrWhiteSpace(user.FullName) ? "" : user.FullName,
-                ProfileImage = img404 ? Convert.ToBase64String(fileBytes) : "Image not found", // base64 image 
-                ProfileImageType = img404 ? contentType : "-",
+                ProfileImage = imageExists ? Convert.ToBase64String(fileBytes) : "", // base64 image if exists, else empty
+                ProfileImageType = imageExists ? contentType : "-",
             });
         }
 
@@ -78,7 +86,7 @@ namespace Profile.Controller
                 Email = user.Email,
                 UserName = user.UserName == user.Email ? "" : user.UserName,
                 FullName = string.IsNullOrWhiteSpace(user.FullName) ? "" : user.FullName,
-                ProfileImage = img404 ? Convert.ToBase64String(fileBytes) : "Image not found", // base64 image 
+                ProfileImage = img404 ? Convert.ToBase64String(fileBytes) : "Image not found", // base64 image
                 ProfileImageType = img404 ? contentType : "-",
             });
         }
@@ -132,7 +140,7 @@ namespace Profile.Controller
 
             var parentDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
             var uploadPath = Path.Combine(parentDirectory, "uploads");
-            // if (!Directory.Exists(uploadPath)) // no need to check for this 
+            // if (!Directory.Exists(uploadPath)) // no need to check for this
             //     Directory.CreateDirectory(uploadPath);
 
             var fileName = $"{Guid.NewGuid()}_{image.FileName}";

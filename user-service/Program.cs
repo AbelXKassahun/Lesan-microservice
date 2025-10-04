@@ -69,7 +69,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Redis
 builder.Services.AddSingleton<IConnectionMultiplexer>(
-    _ => ConnectionMultiplexer.Connect(redisConnectionString)); 
+    _ => ConnectionMultiplexer.Connect(redisConnectionString));
 
 builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 
@@ -88,10 +88,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-DotNetEnv.Env.Load("../");
+DotNetEnv.Env.Load();
 string secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 var key = Encoding.UTF8.GetBytes(secretKey);
 
+Console.WriteLine(secretKey);
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -106,8 +107,33 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = "users-service",
-        ValidAudience = "ticket-users",
+        ValidAudience = "lesan-microservices",
         IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var header = context.Request.Headers["Authorization"].ToString();
+            if (header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                // Trim spaces or quotes
+                context.Token = header.Substring("Bearer ".Length).Trim().Trim('"');
+            }
+
+            // Console.WriteLine($"🔍 Processed Token: {context.Token}");
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"JWT failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("✅ JWT token validated successfully.");
+            return Task.CompletedTask;
+        }
     };
 });
 builder.Services.AddAuthorization();
@@ -127,8 +153,6 @@ builder.Services.AddSingleton<ProfileUtils>();
 var app = builder.Build();
 
 app.MapGrpcService<UserServiceImpl>();
-// app.UseRouting();
-app.MapControllers();
 
 // foreach (var endpoint in app.Services.GetRequiredService<EndpointDataSource>().Endpoints)
 // {
@@ -142,15 +166,17 @@ app.MapControllers();
 // }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+// }
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
