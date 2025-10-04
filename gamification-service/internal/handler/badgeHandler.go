@@ -9,8 +9,8 @@ import (
 )
 
 type BadgeResponse struct {
-	BadgeID int `json:"badge_id"`
-	UserID string `json:"user_id"`
+	BadgeID   int    `json:"badge_id"`
+	UserID    string `json:"user_id"`
 	BadgeName string `json:"badge_name"`
 	AwardedAt string `json:"awarded_at"`
 }
@@ -26,7 +26,7 @@ func (h *BadgeHandler) GetBadgesByUserID(w http.ResponseWriter, r *http.Request)
 	var userID string
 	userID = r.URL.Query().Get("user_id")
 	if userID == "" {
-		userID = utils.GetUserFromClaims(w, r)
+		userID = utils.GetClaimsFromToken(w, r).NameID
 	}
 
 	badges, err := h.BadgeService.GetBadgeByUserID(userID)
@@ -38,8 +38,8 @@ func (h *BadgeHandler) GetBadgesByUserID(w http.ResponseWriter, r *http.Request)
 	var response []BadgeResponse
 	for _, row := range *badges {
 		response = append(response, BadgeResponse{
-			BadgeID: int(row.ID),
-			UserID: row.UserID,
+			BadgeID:   int(row.ID),
+			UserID:    row.UserID,
 			BadgeName: row.BadgeName,
 			AwardedAt: row.AwardedAt.String(),
 		})

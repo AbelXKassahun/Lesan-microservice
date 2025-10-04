@@ -69,7 +69,7 @@ func FetchObjectService(bucket, objectName string) (string, error) {
 
 	// Generate presigned GET URL (valid 5 minutes)
 	reqParams := make(url.Values)
-	presignedURL, err := minioClient.PresignedGetObject(ctx, bucket, objectName, 5*time.Minute, reqParams)
+	presignedURL, err := minioClient.PresignedGetObject(ctx, bucket, objectName, 15*time.Minute, reqParams)
 	if err != nil {
 		// http.Error(w, "could not generate signed url", http.StatusInternalServerError)
 		log.Println("could not generate signed url")

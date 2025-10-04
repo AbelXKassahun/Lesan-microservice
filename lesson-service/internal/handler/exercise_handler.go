@@ -170,10 +170,11 @@ func (h *ExerciseHandler) attachSignedURLs(ctx context.Context, e *domain.Exerci
 		return
 	}
 
-	// keys that may contain assets [to be updated]
-	keys := []string{"prompt_audio_url", "option_audio_url"}
+	// key_1 that may contain assets [to be updated]
+	key_1 := []string{"prompt_audio_url", "option_audio_url"}
+	key_2 := "image_url"
 
-	for _, key := range keys {
+	for _, key := range key_1 {
 		if val, ok := data[key]; ok {
 			if assetName, ok := val.(string); ok && !strings.HasPrefix(assetName, "http") {
 				// Fetch signed URL
@@ -183,6 +184,21 @@ func (h *ExerciseHandler) attachSignedURLs(ctx context.Context, e *domain.Exerci
 				}
 			}
 		}
+	}
+
+	if options, ok := data["options"].([]interface{}); ok {
+		for _, option := range options {
+			if optMap, ok := option.(map[string]interface{}); ok {
+				if assetName, ok := optMap[key_2].(string); ok && !strings.HasPrefix(assetName, "http") {
+					// Fetch signed URL
+					url, err := app.FetchObjectService(h.assetBucket, assetName)
+					if err == nil {
+						optMap[key_2] = url
+					}
+				}
+			}
+		}
+		data["options"] = options
 	}
 
 	// Re-marshal back into exercise.Data

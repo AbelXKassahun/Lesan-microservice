@@ -98,7 +98,6 @@ func VerifyJWT(w http.ResponseWriter, r *http.Request, isRefreshToken bool) (boo
 	return true, claims
 }
 
-
 // func VerifyJWT(w http.ResponseWriter, r *http.Request, isRefreshToken bool) (bool, *Claims) {
 // 	fmt.Println("@@@JWT secret", JWTSecret)
 // 	var tokenString string
@@ -192,9 +191,9 @@ func GetClaimsFromTokenString(tokenString string) (jwt.MapClaims, error) {
 	return nil, fmt.Errorf("invalid token")
 }
 
-func GetUserFromClaims(w http.ResponseWriter, r *http.Request) string {
+func GetClaimsFromToken(w http.ResponseWriter, r *http.Request) *Claims {
 	claims := &Claims{}
-	
+
 	tokenString := GetJWTFromRequest(w, r)
 
 	// Parse and validate
@@ -210,17 +209,9 @@ func GetUserFromClaims(w http.ResponseWriter, r *http.Request) string {
 		log.Fatal("Error parsing token:", err)
 	}
 
-	if token.Valid {
-		fmt.Println("✅ Token is valid")
-		fmt.Println("User ID:", claims.NameID)
-		fmt.Println("Email:", claims.Email)
-		fmt.Println("Role:", claims.Role)
-		fmt.Println("Issuer:", claims.Issuer)
-		fmt.Println("Audience:", claims.Audience)
-		fmt.Println("Expires:", claims.ExpiresAt)
-	} else {
-		fmt.Println("❌ Invalid token")
+	if !token.Valid {
+		log.Fatal("Invalid token")
 	}
 
-	return claims.NameID
+	return claims
 }

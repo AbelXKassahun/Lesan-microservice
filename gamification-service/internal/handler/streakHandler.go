@@ -9,8 +9,8 @@ import (
 )
 
 type StreakResponse struct {
-	UserID string `json:"userId"`
-	CurrentStreak int `json:"currentStreak"`
+	UserID        string `json:"userId"`
+	CurrentStreak int    `json:"currentStreak"`
 	LastCompleted string `json:"lastCompleted"`
 }
 type StreakHandler struct {
@@ -25,7 +25,7 @@ func (h *StreakHandler) GetStreakByUserID(w http.ResponseWriter, r *http.Request
 	var userID string
 	userID = r.URL.Query().Get("user_id")
 	if userID == "" {
-		userID = utils.GetUserFromClaims(w, r)
+		userID = utils.GetClaimsFromToken(w, r).NameID
 	}
 
 	streak, err := h.StreakService.GetStreakByUserID(userID)
@@ -34,11 +34,11 @@ func (h *StreakHandler) GetStreakByUserID(w http.ResponseWriter, r *http.Request
 		return
 	}
 	response := StreakResponse{
-		UserID: streak.UserID,
+		UserID:        streak.UserID,
 		CurrentStreak: streak.CurrentStreak,
 		LastCompleted: streak.LastCompleted.String(),
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
