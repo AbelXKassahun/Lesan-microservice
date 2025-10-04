@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	
+
 	"gorm.io/gorm"
 
 	"gamification-service/internal/app"
 	"gamification-service/internal/domain"
 	"gamification-service/internal/utils"
 )
-
 
 type AggregatHandler struct {
 	XPService     *app.XPService
@@ -39,10 +38,10 @@ func (h *AggregatHandler) GetUserStats(w http.ResponseWriter, r *http.Request) {
 	var response Stats
 	var err error
 	var userID string
-	
+
 	userID = r.URL.Query().Get("user_id")
 	if userID == "" {
-		userID = utils.GetUserFromClaims(w, r)
+		userID = utils.GetClaimsFromToken(w, r).NameID
 	}
 
 	xp, err := h.XPService.GetXPByUserID(userID)

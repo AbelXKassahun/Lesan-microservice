@@ -44,7 +44,7 @@ func DependencyInjection(DB_URL string) *api.Routes {
 	exerciseService := app.NewExerciseService(exerciseRepo)
 	userProgressService := app.NewUserProgressService(userProgressRepo, unitRepository, sectionRepostory, lessonRepository)
 	// handlers
-	exerciseHandler := handler.NewExerciseHandler(exerciseService, "") // pass valid bucket string not ""
+	exerciseHandler := handler.NewExerciseHandler(exerciseService, "exercise-assets")
 	userProgressHandler := handler.NewUserProgressHandler(*userProgressService)
 	api := api.NewRoutes(exerciseHandler, userProgressHandler)
 

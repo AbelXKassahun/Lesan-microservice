@@ -9,9 +9,9 @@ import (
 )
 
 type XPResponse struct {
-	UserID string `json:"userID"`
-	TotalXP int `json:"totalXP"`
-	League string `json:"league"`
+	UserID  string `json:"userID"`
+	TotalXP int    `json:"totalXP"`
+	League  string `json:"league"`
 }
 
 type XPHandler struct {
@@ -26,7 +26,7 @@ func (h *XPHandler) GetXPByUserID(w http.ResponseWriter, r *http.Request) {
 	var userID string
 	userID = r.URL.Query().Get("user_id")
 	if userID == "" {
-		userID = utils.GetUserFromClaims(w, r)
+		userID = utils.GetClaimsFromToken(w, r).NameID
 	}
 
 	xp, err := h.XPService.GetXPByUserID(userID)
@@ -35,10 +35,10 @@ func (h *XPHandler) GetXPByUserID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := XPResponse {
-		UserID: xp.UserID,
+	response := XPResponse{
+		UserID:  xp.UserID,
 		TotalXP: xp.Total,
-		League: string(xp.League),
+		League:  string(xp.League),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -55,12 +55,12 @@ func (h *XPHandler) GetUsersByLeague(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response  []XPResponse
+	var response []XPResponse
 	for _, row := range *xp {
 		response = append(response, XPResponse{
-				UserID: row.UserID,
-				TotalXP: row.Total,
-				League: string(row.League),
+			UserID:  row.UserID,
+			TotalXP: row.Total,
+			League:  string(row.League),
 		})
 	}
 
