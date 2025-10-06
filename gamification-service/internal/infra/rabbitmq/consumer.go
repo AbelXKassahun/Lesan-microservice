@@ -16,7 +16,6 @@ type LessonCompletedConsumer struct {
 	BadgeService  *app.BadgeService
 }
 
-
 func NewLessonCompletedConsumer(xpService *app.XPService,
 	streakService *app.StreakService,
 	badgeService *app.BadgeService) *LessonCompletedConsumer {
@@ -74,22 +73,61 @@ func (c *LessonCompletedConsumer) StartLessonCompletedConsumer(rabbitURL string)
 
 			// XP/streak/badge logic
 			if event.Event == "LessonCompleted" {
-				// this (the block of code in this `if statement`) needs to be refactored, logic should be handled i n another file, this file is only for consuming events
+				// this whole block of code needs to be refactored, logic should be handled in another file, this file is only for consuming events
+
+				// notify on lesson complete
+				notify(event.UserID, event.Email, "Congrats on completing a lesson, keep up the good work")
+
 				c.XPService.UpdateXP(event.UserID, event.XP)
 				streak, _ := c.StreakService.UpdateStreak(event.UserID)
 				switch streak {
 				case 1:
-					c.BadgeService.TryAwardBadge(event.UserID, domain.FirstLesson.String())
+					badgeAwarded, err := c.BadgeService.TryAwardBadge(event.UserID, domain.FirstLesson.String())
+					if err != nil {
+						log.Println("Couldn't award badge: ", err)
+					}
+
 					c.XPService.UpdateXP(event.UserID, 100)
+
+					if badgeAwarded {
+						notify(event.UserID, event.Email, "Congrats on finishing your first lesson, you have been awarded the 'FirstLesson' badge. Keep at it.")
+					}
 				case 7:
-					c.BadgeService.TryAwardBadge(event.UserID, domain.FirstWeek.String())
+					badgeAwarded, err := c.BadgeService.TryAwardBadge(event.UserID, domain.FirstWeek.String())
+					if err != nil {
+						log.Println("Couldn't award badge: ", err)
+					}
+
 					c.XPService.UpdateXP(event.UserID, 250)
+
+					if badgeAwarded {
+						notify(event.UserID, event.Email, "A week straight of learning amharic, congrats. You have been awarded the 'FirstWeek' badge. We hope to see more of you.")
+					}
 				}
 			}
-
 		}
 	}()
 
 	log.Println("✅ Listening for LessonCompleted events on queue `lesson_completed`")
 	return nil
+}
+
+func notify(userID, email, message string) {
+	p, err := NewNotificationPublisher("amqp://guest:guest@localhost:5672/", "notification.queue")
+	if err != nil {
+		log.Fatalf("Error creating publisher: %v", err)
+	}
+	defer p.Close()
+
+	msg := NotificationMessage{
+		UserID:   userID,
+		Email:    email,
+		Message:  message,
+		Channels: []string{"email"},
+	}
+
+	if err := p.Publish(msg); err != nil {
+		log.Fatalf("Publish error: %v", err)
+	}
+	log.Println("✔ Notification Sent: ", message)
 }

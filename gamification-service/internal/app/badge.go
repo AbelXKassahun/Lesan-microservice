@@ -13,7 +13,7 @@ type BadgeService struct {
 	Repo ports.BadgeRepository
 }
 type ReadableBadge struct {
-	ID        uint 
+	ID        uint
 	UserID    string
 	BadgeName string
 	AwardedAt time.Time
@@ -34,21 +34,23 @@ func (s *BadgeService) GetBadgeByUserID(userID string) (*[]domain.UserBadge, err
 	return badges, nil
 }
 
-func (s *BadgeService) TryAwardBadge(userID string, badgeName string) error {
+func (s *BadgeService) TryAwardBadge(userID string, badgeName string) (bool, error) {
 	err := s.Repo.CheckIfBadgeAwarded(userID, badgeName)
+	badgeAwarded := false
 	if err == nil {
 		// Already has this badge
 		log.Printf("already has this badge, %v", badgeName)
-		return nil
+		return badgeAwarded, nil
 	}
 	if err != gorm.ErrRecordNotFound {
-		return err
+		return badgeAwarded, err
 	}
 
+	badgeAwarded = true
 	newBadge := domain.UserBadge{
 		UserID:    userID,
 		BadgeName: badgeName,
 		AwardedAt: time.Now(),
 	}
-	return s.Repo.AddBadge(&newBadge)
+	return badgeAwarded, s.Repo.AddBadge(&newBadge)
 }

@@ -2,9 +2,13 @@ package app
 
 import (
 	"context"
+	"errors"
+
+	"lesson-service/internal/domain"
+	"lesson-service/internal/ports"
 
 	"github.com/google/uuid"
-	"lesson-service/internal/ports"
+	"gorm.io/gorm"
 )
 
 // type UserProgressService interface {
@@ -36,6 +40,19 @@ func (s *UserProgressService) GetUserProgress(ctx context.Context, userID uuid.U
 	// Fetch progress row
 	progress, err := s.userProgressRepo.GetByUser(ctx, userID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// If no progress found, create a new one
+			newProgress, createErr := s.CreateNewUserProgress(ctx, userID)
+			if createErr != nil {
+				return nil, createErr
+			}
+			if newProgress == nil {
+				return nil, errors.New("failed to create new user progress: initial unit, section, or lesson not found")
+			}
+			progress = newProgress
+		} else {
+			return nil, err
+		}
 		return nil, err
 	}
 
@@ -100,12 +117,141 @@ func (s *UserProgressService) GetUserProgress(ctx context.Context, userID uuid.U
 
 	result := map[string]interface{}{
 		"user-progress": map[string]interface{}{
-			"current-unit":      progress.CurrentUnit,
+			"current-unit":       progress.CurrentUnit,
 			"current_section_id": progress.CurrentSection,
-			"next-lesson-id":    progress.CurrentLesson,
-			"trail":             trail,
+			"next-lesson-id":     progress.CurrentLesson,
+			"trail":              trail,
 		},
 	}
 
 	return result, nil
+}
+
+func (s *UserProgressService) UpdateUserProgress(ctx context.Context, userID uuid.UUID) error {
+	progress, err := s.userProgressRepo.GetByUser(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	lessons, err := s.lessonRepo.GetBySection(ctx, progress.CurrentSection)
+	if err != nil {
+		return err
+	}
+
+	currentLesson, err := s.lessonRepo.GetByID(ctx, progress.CurrentLesson)
+	if err != nil {
+		return err
+	}
+	// check if there are other lesson in the section
+	nextLessonIndex := currentLesson.OrderIndex + 1
+	for _, lesson := range *lessons {
+		if nextLessonIndex == lesson.OrderIndex {
+			progress.CurrentLesson = lesson.ID
+			return s.userProgressRepo.Update(ctx, progress)
+		}
+	}
+
+	//
+	sections, err := s.sectionRepo.GetByUnit(ctx, progress.CurrentUnit)
+	if err != nil {
+		return err
+	}
+
+	currentSection, err := s.sectionRepo.GetByID(ctx, progress.CurrentSection)
+	if err != nil {
+		return err
+	}
+
+	nextSectionIndex := currentSection.OrderIndex + 1
+	for _, section := range *sections {
+		if nextSectionIndex == section.OrderIndex {
+			progress.CurrentSection = section.ID
+			lessons, err := s.lessonRepo.GetBySection(ctx, section.ID)
+			if err != nil {
+				return err
+			}
+			for _, lesson := range *lessons {
+				if lesson.OrderIndex == 1 {
+					progress.CurrentLesson = lesson.ID
+					return s.userProgressRepo.Update(ctx, progress)
+				}
+			}
+		}
+	}
+
+	currentUnit, err := s.unitRepo.GetByID(ctx, progress.CurrentUnit)
+	if err != nil {
+		return err
+	}
+
+	units, err := s.unitRepo.ListAll(ctx)
+	if err != nil {
+		return err
+	}
+
+	nextUnitIndex := currentUnit.OrderIndex + 1
+	for _, unit := range *units {
+		if nextUnitIndex == unit.OrderIndex {
+			progress.CurrentUnit = unit.ID
+			sections, err := s.sectionRepo.GetByUnit(ctx, unit.ID)
+			if err != nil {
+				return err
+			}
+			for _, section := range *sections {
+				if section.OrderIndex == 1 {
+					progress.CurrentSection = section.ID
+					lessons, err := s.lessonRepo.GetBySection(ctx, section.ID)
+					if err != nil {
+						return err
+					}
+					for _, lesson := range *lessons {
+						if lesson.OrderIndex == 1 {
+							progress.CurrentLesson = lesson.ID
+							return s.userProgressRepo.Update(ctx, progress)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s *UserProgressService) CreateNewUserProgress(ctx context.Context, userID uuid.UUID) (*domain.UserProgress, error) {
+	progress := &domain.UserProgress{
+		UserID: userID,
+	}
+
+	units, err := s.unitRepo.ListAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, unit := range *units {
+		if unit.OrderIndex == 1 {
+			progress.CurrentUnit = unit.ID
+			sections, err := s.sectionRepo.GetByUnit(ctx, unit.ID)
+			if err != nil {
+				return nil, err
+			}
+			for _, section := range *sections {
+				if section.OrderIndex == 1 {
+					progress.CurrentSection = section.ID
+					lessons, err := s.lessonRepo.GetBySection(ctx, section.ID)
+					if err != nil {
+						return nil, err
+					}
+					for _, lesson := range *lessons {
+						if lesson.OrderIndex == 1 {
+							progress.CurrentLesson = lesson.ID
+							return progress, s.userProgressRepo.Create(ctx, progress)
+						}
+					}
+				}
+			}
+
+		}
+	}
+	return progress, nil
 }

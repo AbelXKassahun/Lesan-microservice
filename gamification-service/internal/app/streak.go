@@ -30,7 +30,6 @@ func (s *StreakService) GetStreakByUserID(userID string) (*domain.UserStreak, er
 
 func (s *StreakService) UpdateStreak(userID string) (int, error) {
 	today := time.Now().Truncate(24 * time.Hour)
-
 	streak, err := s.Repo.GetStreakByUserID(userID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -38,6 +37,7 @@ func (s *StreakService) UpdateStreak(userID string) (int, error) {
 			newStreak := domain.UserStreak{
 				UserID:        userID,
 				CurrentStreak: 1,
+				ActiveDays:    1,
 				LastCompleted: today,
 			}
 			return 1, s.Repo.CreateNewStreak(&newStreak)
@@ -51,6 +51,8 @@ func (s *StreakService) UpdateStreak(userID string) (int, error) {
 		return streak.CurrentStreak, nil
 	}
 
+	// update ActiveDays no matter the streak
+	streak.ActiveDays += 1
 	// Check if they were active yesterday
 	yesterday := today.AddDate(0, 0, -1)
 	if streak.LastCompleted.Equal(yesterday) {
@@ -59,6 +61,6 @@ func (s *StreakService) UpdateStreak(userID string) (int, error) {
 		streak.CurrentStreak = 1 // Reset streak
 	}
 	streak.LastCompleted = today
-	
+
 	return streak.CurrentStreak, s.Repo.UpdateStreak(streak)
 }

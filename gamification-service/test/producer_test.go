@@ -1,4 +1,5 @@
-package rabbitmq_test
+package test
+
 // go test -count=1 ./internal/infra/rabbitmq -v
 // or
 // go clean -testcache
@@ -17,6 +18,7 @@ import (
 type LessonCompletedEvent struct {
 	Event     string `json:"event"`
 	UserID    string `json:"user_id"`
+	Email     string `json:"email"`
 	LessonID  string `json:"lesson_id"`
 	Timestamp string `json:"timestamp"`
 	XP        int    `json:"xp"`
@@ -56,8 +58,10 @@ func TestPublishLessonCompletedEvent(t *testing.T) {
 	}
 
 	event := LessonCompletedEvent{
-		Event:     "LessonCompleted",
-		UserID:    "5c8530b5-5056-466c-b82f-82874cf226c4",
+		Event: "LessonCompleted",
+		// UserID:    "5c8530b5-5056-466c-b82f-82874cf226c4",
+		UserID:    "u124",
+		Email:     "kayanaloi32@gmail.com",
 		LessonID:  "lessonA",
 		Timestamp: time.Now().Format(time.RFC3339),
 		XP:        15,
