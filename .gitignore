@@ -7,3 +7,6 @@ data
 uploads
 Nginx
 envoy.yaml
+.idea/
+.zed/
+gemini-util.ts

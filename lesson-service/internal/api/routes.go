@@ -1,26 +1,25 @@
 package api
 
 import (
-	"net/http"
 	"lesson-service/internal/api/middleware"
 	"lesson-service/internal/handler"
+	"net/http"
 )
 
 type Routes struct {
-	ExerciseHandler *handler.ExerciseHandler
+	ExerciseHandler     *handler.ExerciseHandler
 	UserProgressHandler *handler.UserProgressHandler
 }
 
 func NewRoutes(
-	exerciseHandler *handler.ExerciseHandler, 
+	exerciseHandler *handler.ExerciseHandler,
 	userProgressHandler *handler.UserProgressHandler,
 ) *Routes {
 	return &Routes{
-		ExerciseHandler: exerciseHandler,
+		ExerciseHandler:     exerciseHandler,
 		UserProgressHandler: userProgressHandler,
 	}
 }
-
 
 func (r *Routes) Routes() *http.ServeMux {
 	protected_router := http.NewServeMux()
@@ -30,11 +29,13 @@ func (r *Routes) Routes() *http.ServeMux {
 	})
 
 	protected_router.HandleFunc("/api/lesson-service/exercise/", r.ExerciseHandler.HandleExercise)
-	
+
 	protected_router.HandleFunc("/api/lesson-service/exercises/lesson", r.ExerciseHandler.HandleExercisesByLesson)
 
 	protected_router.HandleFunc("/api/lesson-service/user-progress", r.UserProgressHandler.GetUserProgress)
-	
+
+	protected_router.HandleFunc("POST /api/lesson-service/lesson-complete", r.UserProgressHandler.LessonComplete)
+
 	main_router.Handle("/api/lesson-service/", middleware.AuthMiddleware(protected_router))
 	return main_router
 }

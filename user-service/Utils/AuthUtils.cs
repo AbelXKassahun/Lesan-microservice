@@ -15,6 +15,8 @@ namespace UserService.Utils
             // DotNetEnv.Env.Load();
             DotNetEnv.Env.Load("../");
             string secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+            Console.WriteLine("## AuthUtils.GenerateAccessToken JWT_SECRET_KEY:");
+            Console.WriteLine(secretKey);
 
             // // After successful login
             var key = Encoding.UTF8.GetBytes(secretKey);
@@ -35,7 +37,6 @@ namespace UserService.Utils
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             string jwt = tokenHandler.WriteToken(token);
-
             return jwt;
         }
 
@@ -51,7 +52,7 @@ namespace UserService.Utils
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             DotNetEnv.Env.Load("../");
-            var secretKey = Environment.GetEnvironmentVariable("JWT_KID");
+            var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 
             var tokenValidationParameters = new TokenValidationParameters
             {

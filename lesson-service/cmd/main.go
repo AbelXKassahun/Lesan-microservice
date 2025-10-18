@@ -7,11 +7,11 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"lesson-service/internal/api"
-	"lesson-service/internal/infra/postgres"
 	"lesson-service/internal/infra/storage"
+	"lesson-service/internal/infra/postgres"
 	"lesson-service/internal/app"
 	"lesson-service/internal/handler"
+	"lesson-service/internal/api"
 )
 
 func main() {

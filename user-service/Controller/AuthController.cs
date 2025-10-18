@@ -51,7 +51,7 @@ namespace Auth.Controller
                 Role = "User",
             });
 
-            // create refresh token and store it 
+            // create refresh token and store it
             var refreshToken = util.GenerateRefreshToken();
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
@@ -93,9 +93,9 @@ namespace Auth.Controller
                 Email = model.Email,
                 Role = "User",
             });
-            Console.WriteLine($"@@@ user-id {user.Id}");
+            Console.WriteLine($"@@*@ user-id {user.Id}");
 
-            // create refresh token and store it 
+            // create refresh token and store it
             var refreshToken = util.GenerateRefreshToken();
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);

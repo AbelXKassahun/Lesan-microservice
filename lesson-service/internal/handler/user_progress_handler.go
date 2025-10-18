@@ -5,10 +5,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
 	"lesson-service/internal/app"
+	"lesson-service/internal/infra/rabbitmq"
 	"lesson-service/internal/utils"
+
+	"github.com/google/uuid"
 )
+
+type LessonCompleteRequestData struct {
+	LessonID string
+	// Analytics any
+}
 
 type UserProgressHandler struct {
 	service app.UserProgressService
@@ -34,8 +41,8 @@ func (h *UserProgressHandler) GetUserProgress(w http.ResponseWriter, r *http.Req
 	// 	http.Error(w, "missing user_id", http.StatusBadRequest)
 	// 	return
 	// }
-	user_id := utils.GetUserFromClaims(w, r)
-	
+	user_id := utils.GetUserFromClaims(w, r).NameID
+
 	userID, err := uuid.Parse(user_id)
 	if err != nil {
 		http.Error(w, "invalid user_id", http.StatusBadRequest)
@@ -50,6 +57,44 @@ func (h *UserProgressHandler) GetUserProgress(w http.ResponseWriter, r *http.Req
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
+}
+
+func (h *UserProgressHandler) LessonComplete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req LessonCompleteRequestData
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	claims := utils.GetUserFromClaims(w, r)
+	user_id := claims.NameID
+	userID, err := uuid.Parse(user_id)
+	if err != nil {
+		http.Error(w, "invalid user_id", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.UpdateUserProgress(r.Context(), userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// lesson complete producer below
+	eventData := rabbitmq.EventData{
+		UserID:    claims.NameID,
+		Email:     claims.Email,
+		LessonId:  req.LessonID,
+		AwardedXP: 35,
+	}
+	rabbitmq.PublishLessonCompletedEvent(eventData)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 // helper

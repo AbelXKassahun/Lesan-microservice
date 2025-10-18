@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
-	"lesson-service/internal/domain"
 	"lesson-service/internal/app"
+	"lesson-service/internal/domain"
+
+	"github.com/google/uuid"
 )
 
 type ExerciseHandler struct {
@@ -53,7 +54,7 @@ func (h *ExerciseHandler) HandleExercise(w http.ResponseWriter, r *http.Request)
 		// 	return
 		// }
 		// h.DeleteExercise(w, r, parts[1])
-		
+
 		// exercise id from query param
 		if exerciseID == "" {
 			http.Error(w, "missing exercise id", http.StatusBadRequest)
@@ -76,7 +77,7 @@ func (h *ExerciseHandler) HandleExercisesByLesson(w http.ResponseWriter, r *http
 	// 	return
 	// }
 	// h.getExercisesByLesson(w, r, parts[2])
-	
+
 	lesson_id := r.URL.Query().Get("lesson_id")
 	if lesson_id == "" {
 		http.Error(w, "missing lesson id", http.StatusBadRequest)
@@ -85,7 +86,7 @@ func (h *ExerciseHandler) HandleExercisesByLesson(w http.ResponseWriter, r *http
 	h.getExercisesByLesson(w, r, lesson_id)
 }
 
-// handlers 
+// handlers
 func (h *ExerciseHandler) createExercise(w http.ResponseWriter, r *http.Request) {
 	var req domain.Exercise
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -173,6 +174,7 @@ func (h *ExerciseHandler) attachSignedURLs(ctx context.Context, e *domain.Exerci
 	// key_1 that may contain assets [to be updated]
 	key_1 := []string{"prompt_audio_url", "option_audio_url"}
 	key_2 := "image_url"
+	key_3 := "audio_url"
 
 	for _, key := range key_1 {
 		if val, ok := data[key]; ok {
@@ -199,6 +201,24 @@ func (h *ExerciseHandler) attachSignedURLs(ctx context.Context, e *domain.Exerci
 			}
 		}
 		data["options"] = options
+	}
+
+	if items, ok := data["left_items"].([]interface{}); ok {
+		firstItem := items[0].(map[string]interface{})
+		if _, exists := firstItem["audio_url"]; exists {
+			for _, item := range items {
+				if itemMap, ok := item.(map[string]interface{}); ok {
+					if assetName, ok := itemMap[key_3].(string); ok && !strings.HasPrefix(assetName, "http") {
+						// Fetch signed URL
+						url, err := app.FetchObjectService(h.assetBucket, assetName)
+						if err == nil {
+							itemMap[key_2] = url
+						}
+					}
+				}
+			}
+		}
+		data["left_items"] = items
 	}
 
 	// Re-marshal back into exercise.Data

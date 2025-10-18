@@ -3,9 +3,10 @@ package postgres
 import (
 	"context"
 
+	"lesson-service/internal/domain"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"lesson-service/internal/domain"
 )
 
 type UserProgressRepository struct {

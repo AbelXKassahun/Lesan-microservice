@@ -1,4 +1,5 @@
-package rabbitmq_test
+package rabbitmq
+
 // go test -count=1 ./internal/infra/rabbitmq -v
 // or
 // go clean -testcache
@@ -7,7 +8,6 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"testing"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -17,12 +17,20 @@ import (
 type LessonCompletedEvent struct {
 	Event     string `json:"event"`
 	UserID    string `json:"user_id"`
+	Email     string `json:"email"`
 	LessonID  string `json:"lesson_id"`
 	Timestamp string `json:"timestamp"`
 	XP        int    `json:"xp"`
 }
 
-func TestPublishLessonCompletedEvent(t *testing.T) {
+type EventData struct {
+	UserID    string
+	Email     string
+	LessonId  string
+	AwardedXP int
+}
+
+func PublishLessonCompletedEvent(eventData EventData) {
 	godotenv.Load("../../../.env")
 	rabbitURL := os.Getenv("RABBITMQ_URL")
 	if rabbitURL == "" {
@@ -32,13 +40,13 @@ func TestPublishLessonCompletedEvent(t *testing.T) {
 
 	conn, err := amqp.Dial(rabbitURL)
 	if err != nil {
-		t.Fatalf("❌ Failed to connect to RabbitMQ: %v", err)
+		log.Fatalf("❌ Failed to connect to RabbitMQ: %v", err)
 	}
 	defer conn.Close()
 
 	ch, err := conn.Channel()
 	if err != nil {
-		t.Fatalf("❌ Failed to open channel: %v", err)
+		log.Fatalf("❌ Failed to open channel: %v", err)
 	}
 	defer ch.Close()
 
@@ -52,15 +60,19 @@ func TestPublishLessonCompletedEvent(t *testing.T) {
 		nil,
 	)
 	if err != nil {
-		t.Fatalf("❌ Failed to declare queue: %v", err)
+		log.Fatalf("❌ Failed to declare queue: %v", err)
 	}
 
 	event := LessonCompletedEvent{
+		// UserID:    "u124",
+		// LessonID:  "lessonA",
+		// XP:        15,
 		Event:     "LessonCompleted",
-		UserID:    "u124",
-		LessonID:  "lessonA",
+		UserID:    eventData.UserID,
+		Email:     eventData.Email,
+		LessonID:  eventData.LessonId,
+		XP:        eventData.AwardedXP,
 		Timestamp: time.Now().Format(time.RFC3339),
-		XP:        15,
 	}
 
 	body, _ := json.Marshal(event)
@@ -76,7 +88,7 @@ func TestPublishLessonCompletedEvent(t *testing.T) {
 		},
 	)
 	if err != nil {
-		t.Fatalf("❌ Failed to publish message: %v", err)
+		log.Fatalf("❌ Failed to publish message: %v", err)
 	}
 
 	log.Println("📤 Published LessonCompleted")
