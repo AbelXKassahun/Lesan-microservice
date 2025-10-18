@@ -6,10 +6,16 @@ import (
 	"strings"
 
 	"lesson-service/internal/app"
+	"lesson-service/internal/infra/rabbitmq"
 	"lesson-service/internal/utils"
 
 	"github.com/google/uuid"
 )
+
+type LessonCompleteRequestData struct {
+	LessonID string
+	// Analytics any
+}
 
 type UserProgressHandler struct {
 	service app.UserProgressService
@@ -59,7 +65,7 @@ func (h *UserProgressHandler) LessonComplete(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var req any
+	var req LessonCompleteRequestData
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -79,8 +85,14 @@ func (h *UserProgressHandler) LessonComplete(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// call lesson complete producer below
-	// claims.Email
+	// lesson complete producer below
+	eventData := rabbitmq.EventData{
+		UserID:    claims.NameID,
+		Email:     claims.Email,
+		LessonId:  req.LessonID,
+		AwardedXP: 35,
+	}
+	rabbitmq.PublishLessonCompletedEvent(eventData)
 
 	w.WriteHeader(http.StatusOK)
 }

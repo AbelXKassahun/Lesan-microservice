@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"log"
 
 	"lesson-service/internal/domain"
 	"lesson-service/internal/ports"
@@ -42,6 +43,7 @@ func (s *UserProgressService) GetUserProgress(ctx context.Context, userID uuid.U
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// If no progress found, create a new one
+			log.Println("No progress found so creating a new one")
 			newProgress, createErr := s.CreateNewUserProgress(ctx, userID)
 			if createErr != nil {
 				return nil, createErr
@@ -53,7 +55,6 @@ func (s *UserProgressService) GetUserProgress(ctx context.Context, userID uuid.U
 		} else {
 			return nil, err
 		}
-		return nil, err
 	}
 
 	// Fetch units
@@ -164,7 +165,9 @@ func (s *UserProgressService) UpdateUserProgress(ctx context.Context, userID uui
 
 	nextSectionIndex := currentSection.OrderIndex + 1
 	for _, section := range *sections {
+		log.Println("section: ", section, " - order index: ", section.OrderIndex)
 		if nextSectionIndex == section.OrderIndex {
+			log.Println("matched section: ", section, " - matched order index: ", section.OrderIndex)
 			progress.CurrentSection = section.ID
 			lessons, err := s.lessonRepo.GetBySection(ctx, section.ID)
 			if err != nil {

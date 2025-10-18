@@ -80,6 +80,7 @@ func (c *LessonCompletedConsumer) StartLessonCompletedConsumer(rabbitURL string)
 
 				c.XPService.UpdateXP(event.UserID, event.XP)
 				streak, _ := c.StreakService.UpdateStreak(event.UserID)
+				// updateProfile()
 				switch streak {
 				case 1:
 					badgeAwarded, err := c.BadgeService.TryAwardBadge(event.UserID, domain.FirstLesson.String())
@@ -104,6 +105,7 @@ func (c *LessonCompletedConsumer) StartLessonCompletedConsumer(rabbitURL string)
 						notify(event.UserID, event.Email, "A week straight of learning amharic, congrats. You have been awarded the 'FirstWeek' badge. We hope to see more of you.")
 					}
 				}
+				c.updateProfile(event.UserID)
 			}
 		}
 	}()
@@ -130,4 +132,35 @@ func notify(userID, email, message string) {
 		log.Fatalf("Publish error: %v", err)
 	}
 	log.Println("✔ Notification Sent: ", message)
+}
+
+func (c *LessonCompletedConsumer) updateProfile(userID string) {
+	p, err := NewUpdateProfileProducer("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		log.Fatalf("Error creating publisher: %v", err)
+	}
+	defer p.Close()
+
+	userXP, err := c.XPService.GetXPByUserID(userID)
+	if err != nil {
+		log.Fatalf("Publish error: %v", err)
+	}
+
+	streak, err := c.StreakService.GetStreakByUserID(userID)
+	if err != nil {
+		log.Fatalf("Publish error: %v", err)
+	}
+
+	msg := UpdateProfileEvent{
+		UserID:           userID,
+		Streak:           streak.CurrentStreak,
+		XP:               userXP.Total,
+		LessonsCompleted: streak.ActiveDays,
+		League:           string(userXP.League),
+	}
+
+	if err := p.Publish(msg); err != nil {
+		log.Fatalf("Publish error: %v", err)
+	}
+	log.Println("✔ Update profile event sent")
 }
